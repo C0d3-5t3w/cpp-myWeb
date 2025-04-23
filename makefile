@@ -3,7 +3,7 @@ init:
 	@mkdir -p build
 
 php:
-	@find . -type f -path "./src/pages/*.php" | sort
+	@find . -type f -path "./src/web/pages/*.php" | sort
 	@find . -type f -path "./*.php" | sort | \
 	  xargs -I {} sh -c '\
 	    file="{}"; \
@@ -12,7 +12,7 @@ php:
 	      html_file="$$dir/$$(basename "$${file%.php}.html")"; \
 	      php "$$file" > "$$html_file"; \
 	    fi'
-	@find . -type f -path "./src/pages/*.php" -exec sh -c '\
+	@find . -type f -path "./src/web/pages/*.php" -exec sh -c '\
 	  for file; do \
 	    if [ "$${file##*.}" = "php" ]; then \
 	      dir=$$(dirname "$$file"); \
@@ -24,21 +24,21 @@ php:
 
 ts:
 	@tsc --init
-	@tsc --project tsconfig.json --outDir src/assets/js --sourceMap
+	@tsc --project tsconfig.json --outDir src/web/assets/js --sourceMap
 
 sass:
-	@sass src/assets/sass:src/assets/css --style compressed --update
+	@sass src/web/assets/sass:src/web/assets/css --style compressed --update
 
 .PHONY: clean
 clean:
 	@rm -rf .DS_Store
 	@rm -rf src/.DS_Store
-	@rm -rf src/assets/css
-	@rm -rf src/assets/js
+	@rm -rf src/web/assets/css
+	@rm -rf src/web/assets/js
 	@rm -rf tsconfig.json
 	@rm -rf package-lock.json
-	@rm -rf src/pages/*.html
-	@rm -rf *.html
+	@rm -rf src/web/pages/*.html
+	@rm -rf src/web/*.html
 	@rm -rf build
 
 .PHONY: build
