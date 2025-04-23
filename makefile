@@ -14,7 +14,7 @@ build: clean init
 
 .PHONY: run
 run:
-	@cd build && ./mywebserver
+	@cd build && ./website
 
 .PHONY: help
 help:
