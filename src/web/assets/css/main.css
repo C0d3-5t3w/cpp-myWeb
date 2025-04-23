@@ -18,3 +18,12 @@ h1 {
     border-style: solid;
     border-color: #acacac;
 }
+
+p {
+    font-size: 1.2em;
+    line-height: 1.5;
+    margin: 20px 0;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #d53f33;
+} 
