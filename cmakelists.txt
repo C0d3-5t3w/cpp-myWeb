@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.10)
+project(MyWebServer CXX)
+add_executable(mywebserver src/main.cpp src/web/web.cpp)
+target_include_directories(mywebserver PUBLIC src) 
+message(STATUS "Configured MyWebServer project. Build with 'make' or your chosen generator.")
+message(STATUS "Run the executable from the build directory.")
+message(STATUS "Ensure the web files are accessible at '../src/web' relative to the executable.")

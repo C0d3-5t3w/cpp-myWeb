@@ -1,0 +1,20 @@
+body {
+    font-family: sans-serif;
+    background-color: #000000;
+    color: #ffffff;
+    padding: 20px;
+}
+
+h1 {
+    color: #d6d6d6;
+    font-size: 2em;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #ae5700;
+    align-content: center;
+    border-width: 20px;
+    border-style: solid;
+    border-color: #acacac;
+}
