@@ -1,4 +1,13 @@
-body {
+:root {
+    --primary-color: #000000;
+    --secondary-color: #8e8e8e;
+    --background-color: #9f0101;
+    --text-color:  #ffffff;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {  
     font-family: sans-serif;
     background-color: #000000;
     color: #ffffff;
@@ -12,11 +21,13 @@ h1 {
     margin: 0;
     padding: 20px;
     border-radius: 10px;
-    background-color: #ae5700;
+    background-color: #818483;
     align-content: center;
     border-width: 20px;
     border-style: solid;
     border-color: #acacac;
+    cursor: pointer; 
+    transition: background-color 0.3s ease;
 }
 
 p {
@@ -26,4 +37,4 @@ p {
     border-radius: 5px;
     padding: 10px;
     background-color: #d53f33;
-} 
+}
