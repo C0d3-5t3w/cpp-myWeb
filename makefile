@@ -27,7 +27,7 @@ ts:
 	@tsc --project tsconfig.json --outDir src/web/assets/js --sourceMap
 
 sass:
-	@sass src/web/assets/sass:src/web/assets/css --style compressed --update
+	@sass src/web/assets/sass/main.scss:src/web/assets/css/main.css --style compressed --update
 
 .PHONY: clean
 clean:
