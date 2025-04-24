@@ -12,6 +12,9 @@ body {
     background-color: #000000;
     color: #ffffff;
     padding: 20px;
+    display: flex; // Use flexbox for layout
+    flex-direction: column; // Stack elements vertically
+    min-height: 100vh; // Ensure body takes full viewport height
 }
 
 h1 {
@@ -19,22 +22,121 @@ h1 {
     font-size: 2em;
     text-align: center;
     margin: 0;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: #818483;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: lightgray;
     align-content: center;
-    border-width: 20px;
+    border-width: 5px;
     border-style: solid;
-    border-color: #acacac;
+    border-color: darkgray;
     cursor: pointer; 
     transition: background-color 0.3s ease;
 }
 
 p {
+    color: white;
     font-size: 1.2em;
     line-height: 1.5;
     margin: 20px 0;
     border-radius: 5px;
     padding: 10px;
-    background-color: #d53f33;
+    background-color: #000000;
+}
+
+ps {
+    color: white;
+    font-size: 13pt;
+    line-height: 1.5;
+    margin: 20px 0;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #000000;
+}
+
+// --- Chat Styles ---
+.chat-container {
+    background-color: #1a1a1a;
+    border: 1px solid var(--secondary-color);
+    border-radius: 5px;
+    padding: 15px;
+    margin-top: 20px;
+    flex-grow: 1; // Allow chat container to grow
+    display: flex;
+    flex-direction: column;
+    max-height: 60vh; // Limit chat height
+}
+
+.chat-container h2 {
+    margin-top: 0;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--secondary-color);
+    padding-bottom: 10px;
+}
+
+.chat-messages {
+    flex-grow: 1; // Allow message area to fill space
+    overflow-y: auto; // Add scrollbar if messages overflow
+    margin-bottom: 10px;
+    padding-right: 5px; // Space for scrollbar
+    color: var(--text-color);
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.chat-message {
+    margin-bottom: 8px;
+    word-wrap: break-word; // Wrap long messages
+
+    .timestamp {
+        color: var(--secondary-color);
+        font-size: 0.8em;
+        margin-right: 5px;
+    }
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px; // Space between input and button
+}
+
+.chat-input input[type="text"] {
+    flex-grow: 1; // Input takes available space
+    padding: 8px;
+    border: 1px solid var(--secondary-color);
+    border-radius: 3px;
+    background-color: #333;
+    color: var(--text-color);
+}
+
+.chat-input button {
+    padding: 8px 15px;
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.chat-input button:hover {
+    background-color: #a0a0a0;
+}
+
+// --- Footer Styles ---
+footer {
+    margin-top: auto; // Push footer to the bottom
+    padding-top: 20px; // Add some space above the footer
+}
+
+// Ensure footer h1/ps styles don't conflict if needed
+footer h1 {
+    // Adjust footer h1 styles if they differ from the main h1
+    font-size: 1em; // Example adjustment
+    background-color: #222; // Example adjustment
+    border-color: #444; // Example adjustment
+}
+
+footer ps {
+     // Adjust footer ps styles if needed
+     font-size: 11pt; // Example adjustment
 }

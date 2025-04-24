@@ -23,8 +23,8 @@ php:
 	@find . -type f -name "*.html" | grep -v "node_modules" | sort
 
 ts:
-	@tsc --init
-	@tsc --project tsconfig.json --outDir src/web/assets/js --sourceMap
+	@tsc --init --outDir src/web/assets/js --sourceMap --lib es2017,dom
+	@tsc --project tsconfig.json --outDir src/web/assets/js --sourceMap --lib es2017,dom
 
 sass:
 	@sass src/web/assets/sass/main.scss:src/web/assets/css/main.css --style compressed --update

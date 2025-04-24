@@ -2,6 +2,7 @@
 #define WEB_H
 
 #include <string>
+#include "../chat/chat.h" // Include ChatManager
 
 class WebServer
 {
@@ -17,6 +18,7 @@ private:
     std::string ip_address_;
     int port_;
     int server_fd_;
+    ChatManager chat_manager_; // Add ChatManager instance
 
     void handle_client(int client_socket);
 

@@ -12,6 +12,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
 
 void log_error(const std::string &msg)
 {
@@ -19,7 +20,11 @@ void log_error(const std::string &msg)
 }
 
 WebServer::WebServer(const std::string &web_root, const std::string &ip_address, int port)
-    : web_root_(web_root), ip_address_(ip_address), port_(port), server_fd_(-1)
+    : web_root_(web_root),
+      ip_address_(ip_address),
+      port_(port),
+      server_fd_(-1),
+      chat_manager_(web_root + "/assets/storage/storage.json")
 {
 
     server_fd_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -60,6 +65,7 @@ WebServer::WebServer(const std::string &web_root, const std::string &ip_address,
 
     std::cout << "Server listening on " << ip_address_ << ":" << port_ << "..." << std::endl;
     std::cout << "Serving files from: " << web_root_ << std::endl;
+    std::cout << "Chat storage: " << web_root + "/assets/storage/storage.json" << std::endl;
 }
 
 WebServer::~WebServer()
@@ -102,21 +108,75 @@ void WebServer::handle_client(int client_socket)
     const int buffer_size = 4096;
     std::vector<char> buffer(buffer_size);
     std::string request_str;
+    std::string request_body;
 
-    int bytes_read = read(client_socket, buffer.data(), buffer_size - 1);
-    if (bytes_read < 0)
-    {
-        log_error("Failed to read from client socket");
-        return;
-    }
-    if (bytes_read == 0)
-    {
-        std::cout << "Client disconnected before sending data." << std::endl;
-        return;
-    }
+    int total_bytes_read = 0;
+    int content_length = 0;
+    bool headers_parsed = false;
 
-    buffer[bytes_read] = '\0';
-    request_str = buffer.data();
+    while (true)
+    {
+        int bytes_read = read(client_socket, buffer.data() + total_bytes_read, buffer_size - 1 - total_bytes_read);
+        if (bytes_read < 0)
+        {
+            log_error("Failed to read from client socket");
+            return;
+        }
+        if (bytes_read == 0)
+        {
+            if (total_bytes_read == 0)
+            {
+                std::cout << "Client disconnected before sending data." << std::endl;
+                return;
+            }
+            break;
+        }
+
+        total_bytes_read += bytes_read;
+        buffer[total_bytes_read] = '\0';
+        request_str = buffer.data();
+
+        if (!headers_parsed)
+        {
+            size_t header_end = request_str.find("\r\n\r\n");
+            if (header_end != std::string::npos)
+            {
+                headers_parsed = true;
+                std::string headers = request_str.substr(0, header_end);
+
+                size_t cl_pos = headers.find("Content-Length: ");
+                if (cl_pos != std::string::npos)
+                {
+                    size_t cl_end = headers.find("\r\n", cl_pos);
+                    if (cl_end != std::string::npos)
+                    {
+                        try
+                        {
+                            content_length = std::stoi(headers.substr(cl_pos + 16, cl_end - (cl_pos + 16)));
+                        }
+                        catch (const std::exception &e)
+                        {
+                            content_length = 0;
+                        }
+                    }
+                }
+                request_body = request_str.substr(header_end + 4);
+            }
+        }
+
+        if (headers_parsed && (total_bytes_read >= (request_str.find("\r\n\r\n") + 4 + content_length)))
+        {
+            request_body = request_str.substr(request_str.find("\r\n\r\n") + 4, content_length);
+            break;
+        }
+
+        if (total_bytes_read >= buffer_size - 1)
+        {
+            log_error("Request exceeded buffer size");
+            send_response(client_socket, "413 Payload Too Large", "text/plain", "Request too large");
+            return;
+        }
+    }
 
     size_t first_line_end = request_str.find("\r\n");
     if (first_line_end == std::string::npos)
@@ -131,9 +191,35 @@ void WebServer::handle_client(int client_socket)
     std::string method, path, http_version;
     ss >> method >> path >> http_version;
 
+    if (path == "/api/chat/messages")
+    {
+        if (method == "GET")
+        {
+            std::string messages_json = chat_manager_.get_messages_as_json_array();
+            send_response(client_socket, "200 OK", "application/json", messages_json);
+        }
+        else if (method == "POST")
+        {
+            if (!request_body.empty())
+            {
+                chat_manager_.add_message(request_body);
+                send_response(client_socket, "201 Created", "application/json", "{\"status\": \"Message added\"}");
+            }
+            else
+            {
+                send_response(client_socket, "400 Bad Request", "text/plain", "Empty message body");
+            }
+        }
+        else
+        {
+            send_response(client_socket, "405 Method Not Allowed", "text/plain", "Method Not Allowed for this endpoint");
+        }
+        return;
+    }
+
     if (method != "GET")
     {
-        send_response(client_socket, "501 Not Implemented", "text/plain", "Only GET method is supported");
+        send_response(client_socket, "405 Method Not Allowed", "text/plain", "Method Not Allowed");
         return;
     }
 
@@ -142,16 +228,45 @@ void WebServer::handle_client(int client_socket)
         path = "/index.html";
     }
 
+    if (path.find("..") != std::string::npos)
+    {
+        send_response(client_socket, "403 Forbidden", "text/plain", "Forbidden");
+        return;
+    }
+
     std::string file_path = web_root_ + path;
+
+    struct stat path_stat;
+    stat(file_path.c_str(), &path_stat);
+    if (S_ISDIR(path_stat.st_mode))
+    {
+        if (path.back() != '/')
+        {
+            std::string redirect_location = path + "/";
+            std::ostringstream response_stream;
+            response_stream << "HTTP/1.1 301 Moved Permanently\r\n";
+            response_stream << "Location: " << redirect_location << "\r\n";
+            response_stream << "Content-Length: 0\r\n";
+            response_stream << "Connection: close\r\n";
+            response_stream << "\r\n";
+            std::string response_str = response_stream.str();
+            write(client_socket, response_str.c_str(), response_str.length());
+            return;
+        }
+        else
+        {
+            file_path += "index.html";
+        }
+    }
 
     std::string file_content = read_file(file_path);
 
     if (file_content.empty())
     {
-
         std::ifstream test_file(file_path);
         if (test_file.good())
         {
+            test_file.close();
             send_response(client_socket, "500 Internal Server Error", "text/plain", "Could not read file");
         }
         else
@@ -161,7 +276,6 @@ void WebServer::handle_client(int client_socket)
     }
     else
     {
-
         std::string mime_type = get_mime_type(file_path);
         send_response(client_socket, "200 OK", mime_type, file_content);
     }

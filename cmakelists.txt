@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
-project(website CXX)
-add_executable(website src/main.cpp src/web/web.cpp)
+project(website)
+
+add_executable(website
+    src/main.cpp
+    src/web/web.cpp
+    src/chat/chat.cpp
+    src/chat/storage.cpp
+)
+
 target_include_directories(website PUBLIC src) 
 message(STATUS "Configured website project. Build with 'make' or your chosen generator.")
 message(STATUS "Run the executable from the build directory.")
