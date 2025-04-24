@@ -65,7 +65,7 @@ WebServer::WebServer(const std::string &web_root, const std::string &ip_address,
 
     std::cout << "Server listening on " << ip_address_ << ":" << port_ << "..." << std::endl;
     std::cout << "Serving files from: " << web_root_ << std::endl;
-    std::cout << "Chat storage: " << web_root + "/assets/storage/storage.json" << std::endl;
+    std::cout << "Chat storage: " << web_root + "/assets/storage/chat.json" << std::endl;
 }
 
 WebServer::~WebServer()
