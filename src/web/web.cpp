@@ -24,7 +24,7 @@ WebServer::WebServer(const std::string &web_root, const std::string &ip_address,
       ip_address_(ip_address),
       port_(port),
       server_fd_(-1),
-      chat_manager_(web_root + "/assets/storage/storage.json")
+      chat_manager_(web_root + "/assets/storage/chat.json")
 {
 
     server_fd_ = socket(AF_INET, SOCK_STREAM, 0);
