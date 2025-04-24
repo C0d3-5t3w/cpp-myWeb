@@ -5,19 +5,20 @@
 #include "storage.h"
 #include <vector>
 #include <string>
-#include <mutex> // For thread safety if needed later
+#include <mutex>
 
-class ChatManager {
+class ChatManager
+{
 private:
     std::vector<Message> messages_;
     Storage storage_;
-    std::mutex mutex_; // Basic mutex for potential future threading
+    std::mutex mutex_;
 
 public:
-    ChatManager(const std::string& storage_path);
-    void add_message(const std::string& text);
+    ChatManager(const std::string &storage_path);
+    void add_message(const std::string &text);
     std::vector<Message> get_messages() const;
-    std::string get_messages_as_json_array() const; // Helper for API response
+    std::string get_messages_as_json_array() const;
 };
 
-#endif // CHAT_H
+#endif
